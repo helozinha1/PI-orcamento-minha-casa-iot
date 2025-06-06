@@ -9,20 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputQuantidade = document.getElementById('inputQuantidade');
     const adicionarItemBtn = document.getElementById('adicionarItemBtn');
 
-    // Dados iniciais (os que você forneceu)
-    const initialData = [
-        { item: 'Alexa', descricao: 'Casa', custoUnitario: 419.00, quantidade: 2 },
-        { item: 'Aquecedor', descricao: 'Piscina', custoUnitario: 11900.00, quantidade: 1 },
-        { item: 'Lâmpada inteligente', descricao: 'Casa', custoUnitario: 76.90, quantidade: 15 },
-        { item: 'Ar-condicionado', descricao: 'Casa', custoUnitario: 4635.88, quantidade: 3 },
-        { item: 'Smart TV 98\'\'', descricao: 'Sala', custoUnitario: 38999.00, quantity: 1 },
-        { item: 'Smart TV 43\'\'', descricao: 'Quarto dos Pais', custoUnitario: 2289.00, quantity: 1 },
-        { item: 'Smart TV 32\'\'', descricao: 'Quarto dos Filhos', custoUnitario: 1719.00, quantity: 1 },
-        { item: 'Tablet', descricao: 'Casa', custoUnitario: 1799.00, quantidade: 1 },
-        { item: 'Câmera', descricao: 'Casa', custoUnitario: 77.33, quantidade: 7 },
-        { item: 'Persiana inteligente', descricao: 'Casa', custoUnitario: 1249.99, quantidade: 3 },
-        { item: 'Notebook', descricao: 'Sala', custoUnitario: 9898.00, quantidade: 1 }
-    ];
+    let orcamentoData = []; // Este array será a nossa "fonte da verdade" dos dados
+
+    // Chave para armazenar no LocalStorage
+    const LOCAL_STORAGE_KEY = 'orcamentoCasaHagma';
 
     // Função para formatar números para BRL
     const formatCurrency = (value) => {
@@ -32,45 +22,90 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função para calcular o total geral
     const calcularTotal = () => {
         let total = 0;
-        tabelaOrcamentoCorpo.querySelectorAll('tr').forEach(row => {
-            const montanteText = row.querySelector('td:nth-child(5)').textContent; // Pega o texto do montante
-            const montanteValue = parseFloat(montanteText.replace('R$', '').replace('.', '').replace(',', '.')); // Converte para número
-            if (!isNaN(montanteValue)) {
-                total += montanteValue;
-            }
+        orcamentoData.forEach(item => {
+            total += item.custoUnitario * item.quantidade;
         });
         totalGeralTd.textContent = formatCurrency(total);
         totalCustoCasaSpan.textContent = formatCurrency(total); // Atualiza o total no topo também
     };
 
-    // Função para adicionar uma linha à tabela
-    const adicionarLinha = (item, descricao, custoUnitario, quantidade) => {
-        const montante = custoUnitario * quantidade;
-
-        const newRow = document.createElement('tr');
-        newRow.innerHTML = `
-            <td data-label="Item">${item}</td>
-            <td data-label="Descrição">${descricao}</td>
-            <td data-label="Custo Unitário">${formatCurrency(custoUnitario)}</td>
-            <td data-label="Qtd.">${quantidade}</td>
-            <td data-label="Montante">${formatCurrency(montante)}</td>
-            <td data-label="Ações"><button class="remove-btn">Remover</button></td>
-        `;
-
-        // Adiciona evento ao botão Remover
-        newRow.querySelector('.remove-btn').addEventListener('click', (e) => {
-            e.target.closest('tr').remove(); // Remove a linha pai
-            calcularTotal(); // Recalcula o total após remover
-        });
-
-        tabelaOrcamentoCorpo.appendChild(newRow);
-        calcularTotal(); // Recalcula o total após adicionar
+    // Função para salvar os dados no LocalStorage
+    const salvarDadosNoLocalStorage = () => {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(orcamentoData));
+        console.log("Dados salvos no LocalStorage.");
     };
 
-    // Preencher a tabela com os dados iniciais
-    initialData.forEach(data => {
-        adicionarLinha(data.item, data.descricao, data.custoUnitario, data.quantidade);
-    });
+    // Função para renderizar a tabela com os dados atuais de orcamentoData
+    const renderizarTabela = () => {
+        tabelaOrcamentoCorpo.innerHTML = ''; // Limpa a tabela antes de renderizar
+        orcamentoData.forEach((data, index) => {
+            const montante = data.custoUnitario * data.quantidade;
+
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td data-label="Item">${data.item}</td>
+                <td data-label="Descrição">${data.descricao}</td>
+                <td data-label="Custo Unitário">${formatCurrency(data.custoUnitario)}</td>
+                <td data-label="Qtd.">${data.quantidade}</td>
+                <td data-label="Montante">${formatCurrency(montante)}</td>
+                <td data-label="Ações"><button class="remove-btn" data-index="${index}">Remover</button></td>
+            `;
+
+            tabelaOrcamentoCorpo.appendChild(newRow);
+        });
+        calcularTotal(); // Recalcula o total após renderizar
+        adicionarEventosRemover(); // Adiciona eventos aos novos botões de remover
+    };
+
+    // Adiciona eventos aos botões de Remover
+    const adicionarEventosRemover = () => {
+        document.querySelectorAll('.remove-btn').forEach(button => {
+            button.onclick = (e) => {
+                const indexToRemove = parseInt(e.target.dataset.index);
+                orcamentoData.splice(indexToRemove, 1); // Remove o item do array
+                renderizarTabela(); // Renderiza a tabela novamente
+                salvarDadosNoLocalStorage(); // Salva as alterações
+            };
+        });
+    };
+
+    // Função para carregar dados: primeiro do LocalStorage, depois do JSON
+    const carregarDadosOrcamento = async () => {
+        const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+
+        if (storedData) {
+            try {
+                orcamentoData = JSON.parse(storedData);
+                console.log("Dados carregados do LocalStorage.");
+            } catch (e) {
+                console.error("Erro ao fazer parse dos dados do LocalStorage, carregando do JSON.", e);
+                // Se o LocalStorage estiver corrompido, tente carregar do JSON
+                await carregarDoJsonFile();
+            }
+        } else {
+            // Se não houver nada no LocalStorage, carrega do arquivo JSON
+            console.log("Nenhum dado no LocalStorage, carregando do orcamento.json.");
+            await carregarDoJsonFile();
+        }
+        renderizarTabela(); // Renderiza a tabela com os dados carregados
+    };
+
+    // Função auxiliar para carregar diretamente do orcamento.json
+    const carregarDoJsonFile = async () => {
+        try {
+            const response = await fetch('orcamento.json');
+            if (!response.ok) {
+                throw new Error(`Erro ao carregar o arquivo JSON: ${response.statusText}`);
+            }
+            orcamentoData = await response.json();
+            salvarDadosNoLocalStorage(); // Salva os dados do JSON no LocalStorage na primeira carga
+        } catch (error) {
+            console.error('Falha ao carregar os dados do orçamento do arquivo JSON:', error);
+            alert('Não foi possível carregar os dados do orçamento. Verifique o arquivo orcamento.json.');
+            orcamentoData = []; // Garante que orcamentoData seja um array vazio em caso de erro
+        }
+    };
+
 
     // Evento para o botão "Adicionar Item"
     adicionarItemBtn.addEventListener('click', () => {
@@ -80,7 +115,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const quantidade = parseInt(inputQuantidade.value);
 
         if (item && descricao && !isNaN(custoUnitario) && custoUnitario > 0 && !isNaN(quantidade) && quantidade > 0) {
-            adicionarLinha(item, descricao, custoUnitario, quantidade);
+            const newItem = {
+                item: item,
+                descricao: descricao,
+                custoUnitario: custoUnitario,
+                quantidade: quantidade
+            };
+            orcamentoData.push(newItem); // Adiciona o novo item ao array
+            renderizarTabela(); // Renderiza a tabela novamente
+            salvarDadosNoLocalStorage(); // Salva as alterações
 
             // Limpa os campos do formulário
             inputItem.value = '';
@@ -92,6 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Calcula o total inicial quando a página carrega
-    calcularTotal();
+    // Chama a função para carregar os dados quando a página é carregada
+    carregarDadosOrcamento();
 });
