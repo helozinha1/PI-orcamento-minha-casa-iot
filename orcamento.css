@@ -1,0 +1,307 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(to right, #1a2a6c, #b21f1f, #fdbb2d);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    margin: 0;
+    padding: 40px 20px;
+    box-sizing: border-box;
+}
+
+.container {
+    background: rgba(10, 23, 49, 0.9);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    padding: 30px;
+    width: 100%;
+    max-width: 1200px; /* Ajuste para caber mais colunas */
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+}
+
+h1 {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 30px;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.total-summary {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin-bottom: 25px;
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #a0d0ff; /* Cor destacada para o total */
+    text-align: right;
+}
+
+.total-summary span {
+    color: #4CAF50; /* Verde para o valor */
+    font-size: 1.2em;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+}
+
+th {
+    background-color: rgba(255, 255, 255, 0.15);
+    font-weight: 700;
+    font-size: 1.1em;
+    color: #fff;
+}
+
+/* Centraliza os cabeçalhos e os valores de Custo Unitário, Qtd. e Montante */
+th:nth-child(3), /* Cabeçalho Custo Unitário */
+td:nth-child(3), /* Valores Custo Unitário */
+th:nth-child(4), /* Cabeçalho Qtd. */
+td:nth-child(4), /* Valores Qtd. */
+th:nth-child(5), /* Cabeçalho Montante */
+td:nth-child(5) { /* Valores Montante */
+    text-align: center;
+}
+
+/* Colunas de item e descrição */
+td:nth-child(1) { /* Item */
+    font-weight: 700;
+    color: #8cafff;
+}
+
+td:nth-child(2) { /* Descrição */
+    font-style: italic;
+    color: #c0c0c0;
+}
+
+/* Estilo para o rodapé da tabela (Total Geral) */
+tfoot td {
+    background-color: rgba(255, 255, 255, 0.2);
+    font-weight: 700;
+    font-size: 1.2em;
+    border-top: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.total-label {
+    text-align: right;
+    padding-right: 20px;
+}
+
+.total-value {
+    color: #4CAF50; /* Verde para o valor total */
+    font-size: 1.3em;
+}
+
+/* Efeito hover nas linhas do corpo da tabela */
+tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+/* Remover borda inferior da última linha do corpo */
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Formulário de Adição de Item */
+.add-item-form {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 25px;
+    margin-top: 30px;
+    text-align: left;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.add-item-form h2 {
+    font-size: 1.8em;
+    color: #fff;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.input-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    margin-bottom: 5px;
+    font-size: 0.95em;
+    color: #e0e0e0;
+}
+
+.input-group input[type="text"],
+.input-group input[type="number"] {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 10px 15px;
+    color: #fff;
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.input-group input[type="text"]::placeholder,
+.input-group input[type="number"]::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.input-group input[type="text"]:focus,
+.input-group input[type="number"]:focus {
+    outline: none;
+    border-color: #8cafff;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+#adicionarItemBtn {
+    background: linear-gradient(to right, #4CAF50, #388E3C);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 500;
+    transition: background 0.3s ease, transform 0.1s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    margin-top: 15px;
+}
+
+#adicionarItemBtn:hover {
+    background: linear-gradient(to right, #388E3C, #2e7d32);
+    transform: translateY(-2px);
+}
+
+#adicionarItemBtn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Botão de Remover */
+.remove-btn {
+    background: linear-gradient(to right, #F44336, #D32F2F);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background 0.3s ease, transform 0.1s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.remove-btn:hover {
+    background: linear-gradient(to right, #D32F2F, #c62828);
+    transform: translateY(-1px);
+}
+
+/* Responsividade da Tabela */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        margin: 20px 0;
+    }
+    h1 {
+        font-size: 2em;
+    }
+    .total-summary {
+        font-size: 1.2em;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block; /* Empilha elementos para telas menores */
+    }
+    thead tr {
+        position: absolute;
+        top: -9999px; /* Esconde o cabeçalho original */
+        left: -9999px;
+    }
+    tr {
+        margin-bottom: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    td {
+        border: none;
+        position: relative;
+        padding-left: 50%; /* Espaço para o label falso */
+        text-align: right;
+    }
+    td:before {
+        content: attr(data-label); /* Usa o atributo data-label como novo "cabeçalho" */
+        position: absolute;
+        left: 10px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: 700;
+        color: #8cafff;
+    }
+    td:first-child { /* Item */
+        background-color: rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    td:first-child:before {
+        content: 'ITEM';
+        color: #fff;
+    }
+    td:nth-child(2):before { content: 'DESCRIÇÃO'; }
+    td:nth-child(3):before { content: 'C. UNITÁRIO'; }
+    td:nth-child(4):before { content: 'QTD.'; }
+    td:nth-child(5):before { content: 'MONTANTE'; }
+    td:nth-child(6):before { content: 'AÇÕES'; }
+
+    tfoot td {
+        display: flex;
+        justify-content: space-between;
+        text-align: left; /* Ajuste para o total no mobile */
+        padding-right: 15px;
+    }
+    .total-label {
+        padding-right: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 15px;
+    }
+    h1 {
+        font-size: 1.8em;
+    }
+    .add-item-form {
+        padding: 15px;
+    }
+    .input-group input, #adicionarItemBtn {
+        font-size: 0.9em;
+        padding: 10px;
+    }
+    .remove-btn {
+        padding: 6px 10px;
+        font-size: 0.8em;
+    }
+}
