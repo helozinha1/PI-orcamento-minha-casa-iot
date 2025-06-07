@@ -65,4 +65,16 @@
       "custoUnitario": 9898.00,
       "quantidade": 1
     }
+       {
+      "item": "Asus Roteador Ax5400",
+      "descricao": "Casa",
+      "custoUnitario": 1799.00,
+      "quantidade": 1
+    }
+       {
+      "item": "Kit Raspberry",
+      "descricao": "Casa",
+      "custoUnitario": 1719.00,
+      "quantidade": 1
+    }
   ]
