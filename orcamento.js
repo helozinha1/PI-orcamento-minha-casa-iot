@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Seletores de elementos HTML
     const tabelaOrcamentoCorpo = document.getElementById('tabelaOrcamentoCorpo');
     const totalCustoCasaSpan = document.getElementById('totalCustoCasa');
     const totalGeralTd = document.getElementById('totalGeral');
@@ -13,6 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Chave para armazenar no LocalStorage
     const LOCAL_STORAGE_KEY = 'orcamentoCasaHagma';
+
+ 
+    const REPO_NAME = '/PI-orcamento-minha-casa-iot';
+
+    // --- Funções de Utilitário ---
 
     // Função para formatar números para BRL
     const formatCurrency = (value) => {
@@ -31,8 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Função para salvar os dados no LocalStorage
     const salvarDadosNoLocalStorage = () => {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(orcamentoData));
-        console.log("Dados salvos no LocalStorage.");
+        try {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(orcamentoData));
+            console.log("Dados salvos no LocalStorage.");
+        } catch (error) {
+            console.error("Erro ao salvar dados no LocalStorage:", error);
+            alert("Não foi possível salvar os dados do orçamento. O LocalStorage pode estar cheio ou inacessível.");
+        }
     };
 
     // Função para renderizar a tabela com os dados atuais de orcamentoData
@@ -62,12 +73,18 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.remove-btn').forEach(button => {
             button.onclick = (e) => {
                 const indexToRemove = parseInt(e.target.dataset.index);
-                orcamentoData.splice(indexToRemove, 1); // Remove o item do array
-                renderizarTabela(); // Renderiza a tabela novamente
-                salvarDadosNoLocalStorage(); // Salva as alterações
+                if (indexToRemove >= 0 && indexToRemove < orcamentoData.length) {
+                    orcamentoData.splice(indexToRemove, 1); // Remove o item do array
+                    renderizarTabela(); // Renderiza a tabela novamente
+                    salvarDadosNoLocalStorage(); // Salva as alterações
+                } else {
+                    console.warn("Tentativa de remover item com índice inválido:", indexToRemove);
+                }
             };
         });
     };
+
+    // --- Funções de Carregamento de Dados ---
 
     // Função para carregar dados: primeiro do LocalStorage, depois do JSON
     const carregarDadosOrcamento = async () => {
@@ -78,13 +95,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 orcamentoData = JSON.parse(storedData);
                 console.log("Dados carregados do LocalStorage.");
             } catch (e) {
-                console.error("Erro ao fazer parse dos dados do LocalStorage, carregando do JSON.", e);
+                console.error("Erro ao fazer parse dos dados do LocalStorage. Tentando carregar do JSON.", e);
                 // Se o LocalStorage estiver corrompido, tente carregar do JSON
                 await carregarDoJsonFile();
             }
         } else {
             // Se não houver nada no LocalStorage, carrega do arquivo JSON
-            console.log("Nenhum dado no LocalStorage, carregando do orcamento.json.");
+            console.log("Nenhum dado no LocalStorage. Carregando do orcamento.json.");
             await carregarDoJsonFile();
         }
         renderizarTabela(); // Renderiza a tabela com os dados carregados
@@ -93,19 +110,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função auxiliar para carregar diretamente do orcamento.json
     const carregarDoJsonFile = async () => {
         try {
-            const response = await fetch('orcamento.json');
+            // Constrói a URL completa para o arquivo JSON
+            // Isso garante que o caminho esteja correto em ambientes como o GitHub Pages.
+            const baseUrl = window.location.origin; // Ex: https://helozinha1.github.io
+            const jsonUrl = `${baseUrl}${REPO_NAME}/orcamento.json`;
+
+            console.log(`Tentando carregar JSON de: ${jsonUrl}`); // Loga a URL exata!
+
+            const response = await fetch(jsonUrl);
+
             if (!response.ok) {
-                throw new Error(`Erro ao carregar o arquivo JSON: ${response.statusText}`);
+                // Se a resposta não for OK (ex: 404 Not Found, 500 Internal Server Error)
+                throw new Error(`Erro de rede ou arquivo não encontrado: ${response.status} ${response.statusText}`);
             }
-            orcamentoData = await response.json();
+
+            // Tenta parsear a resposta como JSON
+            const data = await response.json();
+            orcamentoData = data;
+            console.log("Dados carregados com sucesso do orcamento.json:", orcamentoData);
             salvarDadosNoLocalStorage(); // Salva os dados do JSON no LocalStorage na primeira carga
         } catch (error) {
             console.error('Falha ao carregar os dados do orçamento do arquivo JSON:', error);
-            alert('Não foi possível carregar os dados do orçamento. Verifique o arquivo orcamento.json.');
+            alert('Não foi possível carregar os dados do orçamento. Por favor, verifique o arquivo orcamento.json e o console do navegador para mais detalhes.');
             orcamentoData = []; // Garante que orcamentoData seja um array vazio em caso de erro
         }
     };
 
+    // --- Eventos de Usuário ---
 
     // Evento para o botão "Adicionar Item"
     adicionarItemBtn.addEventListener('click', () => {
@@ -131,9 +162,11 @@ document.addEventListener('DOMContentLoaded', () => {
             inputCustoUnitario.value = '';
             inputQuantidade.value = '';
         } else {
-            alert('Por favor, preencha todos os campos corretamente (custo e quantidade devem ser números maiores que zero).');
+            alert('Por favor, preencha todos os campos corretamente (item, descrição, custo unitário e quantidade devem ser válidos).');
         }
     });
+
+    // --- Inicialização ---
 
     // Chama a função para carregar os dados quando a página é carregada
     carregarDadosOrcamento();
